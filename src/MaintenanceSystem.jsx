@@ -624,11 +624,11 @@ export default function App(){
           if(r.selected_vendor && r.selected_vendor.length > 20) return false;
           return true;
         });
-        // Force overwrite certain DEMO records to pick up new fields
-        const FORCE_UPDATE_IDS = ["driveway1","gate1","gate_prev1","gate_prev2","aef_gate1","etag1"];
+        // Force overwrite ALL DEMO records to pick up new fields
+        const DEMO_IDS = new Set(DEMO.map(d=>d.id));
         const demoMap2 = Object.fromEntries(DEMO.map(d=>[d.id,d]));
         const patchedStored = cleanStored.map(r=>
-          FORCE_UPDATE_IDS.includes(r.id) && demoMap2[r.id] ? {...demoMap2[r.id]} : r
+          DEMO_IDS.has(r.id) && demoMap2[r.id] ? {...demoMap2[r.id]} : r
         );
         const cleanIds = new Set(patchedStored.map(r=>r.id));
 
@@ -637,7 +637,7 @@ export default function App(){
         const seenKeys = new Set();
         const deduped = [...patchedStored,...DEMO.filter(d=>!cleanIds.has(d.id))].filter(r=>{
           // Always keep records with stable DEMO ids
-          if(r.id && r.id.match(/^(demo|import|gate|driveway|aef)/)){
+          if(r.id && DEMO_IDS.has(r.id)){
             if(seenIds.has(r.id)) return false;
             seenIds.add(r.id); return true;
           }
