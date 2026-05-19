@@ -1177,6 +1177,21 @@ export default function App(){
         <div style={S.topbar}>
           <span style={{fontWeight:600,fontSize:15}}>{titles[page]}</span>
           <div style={{display:"flex",gap:10}}>
+            <button style={{...S.btnG,fontSize:11,color:"#b91c1c",borderColor:"#f87171"}} onClick={async()=>{
+              if(window.confirm("⚠️ 重置為最新預設資料？
+使用者自行新增的資料會保留，系統預設資料強制更新")){
+                try{
+                  const res = await window.storage.get("records");
+                  const stored = res ? JSON.parse(res.value) : [];
+                  const demoIds = new Set(DEMO.map(d=>d.id));
+                  const userRecords = stored.filter(r=>!demoIds.has(r.id));
+                  const merged = [...DEMO,...userRecords];
+                  await window.storage.set("records",JSON.stringify(merged));
+                  setRecords(merged);
+                  alert("✅ 已重置！共 "+merged.length+" 筆資料");
+                } catch(e){ alert("重置失敗："+e.message); }
+              }
+            }}>🔄 重置資料</button>
             <button style={S.btnG} onClick={exportCSV}>⬇ 匯出 CSV</button>
             <button style={S.btnP} onClick={()=>setPage("import")}>＋ 新增案件</button>
           </div>
